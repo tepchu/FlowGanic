@@ -1,4 +1,5 @@
 import heapq
+import hmac
 import itertools
 import json
 import os
@@ -10,6 +11,8 @@ from zoneinfo import ZoneInfo
 
 
 DB_PATH = os.environ.get("DB_PATH", "/tmp/flowganic.db")
+API_KEY = os.environ.get("API_KEY", "")
+TANPA_KUNCI = {"/api/health"}
 ZONA = ZoneInfo("Asia/Jakarta")
 HALTE = [
     ("blok-m", "Blok M", -6.244, 106.799),
@@ -110,6 +113,11 @@ def rencanakan_rute(asal, tujuan):
 
 
 class Api(BaseHTTPRequestHandler):
+    def diizinkan(self, path):
+        if not API_KEY or path in TANPA_KUNCI:
+            return True
+        return hmac.compare_digest(self.headers.get("X-API-Key", ""), API_KEY)
+
     def kirim(self, kode, isi):
         data = json.dumps(isi, ensure_ascii=False).encode()
         self.send_response(kode)
@@ -121,6 +129,8 @@ class Api(BaseHTTPRequestHandler):
     def do_GET(self):
         url = urlparse(self.path)
         query = parse_qs(url.query)
+        if not self.diizinkan(url.path):
+            return self.kirim(401, {"galat": "API key tidak valid atau belum disertakan"})
         try:
             if url.path == "/api/health":
                 return self.kirim(200, {"layanan": "flowganic", "status": "ok"})
@@ -137,6 +147,8 @@ class Api(BaseHTTPRequestHandler):
         self.kirim(404, {"galat": "Endpoint tidak ditemukan"})
 
     def do_POST(self):
+        if not self.diizinkan(urlparse(self.path).path):
+            return self.kirim(401, {"galat": "API key tidak valid atau belum disertakan"})
         if urlparse(self.path).path != "/api/risiko-transfer":
             return self.kirim(404, {"galat": "Endpoint tidak ditemukan"})
         try:

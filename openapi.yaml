@@ -1,14 +1,23 @@
 openapi: 3.0.3
 info:
   title: FlowGanic API
-  version: 0.1.0
+  version: 0.2.0
   description: Data jaringan dan jadwal contoh; belum memakai feed real-time atau AI.
 servers:
   - url: /api
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+security:
+  - ApiKeyAuth: []
 paths:
   /health:
     get:
       summary: Cek layanan
+      security: []
       responses:
         '200':
           description: Layanan aktif
@@ -18,6 +27,8 @@ paths:
       responses:
         '200':
           description: Daftar halte dan sumber data
+        '401':
+          description: API key tidak valid atau belum disertakan
   /rute:
     get:
       summary: Rencanakan rute multimoda
@@ -37,6 +48,8 @@ paths:
           description: Langkah rute, total menit, dan sumber jaringan contoh
         '400':
           description: Parameter wajib belum diisi
+        '401':
+          description: API key tidak valid atau belum disertakan
         '404':
           description: Halte tidak ditemukan atau tidak terhubung
   /eta:
@@ -53,6 +66,8 @@ paths:
           description: Waktu tunggu per moda dan sumber jadwal contoh
         '400':
           description: Parameter wajib belum diisi
+        '401':
+          description: API key tidak valid atau belum disertakan
         '404':
           description: Halte tidak ditemukan
   /risiko-transfer:
@@ -74,3 +89,5 @@ paths:
           description: Jeda menit dan tingkat risiko
         '400':
           description: Masukan tidak valid
+        '401':
+          description: API key tidak valid atau belum disertakan

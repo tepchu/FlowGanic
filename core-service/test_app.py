@@ -15,7 +15,15 @@ class FlowganicTest(unittest.TestCase):
         app.siapkan_data()
 
     def tearDown(self):
+        app.API_KEY = ""
         self.temp.cleanup()
+
+    def handler(self):
+        handler = app.Api.__new__(app.Api)
+        self.hasil = []
+        handler.kirim = lambda kode, isi: self.hasil.append((kode, isi))
+        handler.headers = {}
+        return handler
 
     def test_rute_antarmoda(self):
         rute = app.rencanakan_rute("blok-m", "manggarai")
@@ -37,19 +45,48 @@ class FlowganicTest(unittest.TestCase):
             app.risiko_transfer(True, 5)
 
     def test_http(self):
-        handler = app.Api.__new__(app.Api)
-        hasil = []
-        handler.kirim = lambda kode, isi: hasil.append((kode, isi))
+        handler = self.handler()
         for path, kode in [("/api/health", 200), ("/api/rute?asal=blok-m&tujuan=manggarai", 200), ("/api/rute?asal=unknown&tujuan=manggarai", 404), ("/api/eta", 400)]:
             handler.path = path
             handler.do_GET()
-            self.assertEqual(hasil.pop()[0], kode)
+            self.assertEqual(self.hasil.pop()[0], kode)
         for payload, kode in [(b'{"sisa_menit":4,"waktu_jalan_menit":5}', 200), (b'{"sisa_menit":true,"waktu_jalan_menit":5}', 400), (b'\xff', 400)]:
             handler.path = "/api/risiko-transfer"
             handler.headers = {"Content-Length": str(len(payload))}
             handler.rfile = BytesIO(payload)
             handler.do_POST()
-            self.assertEqual(hasil.pop()[0], kode)
+            self.assertEqual(self.hasil.pop()[0], kode)
+
+    def test_api_key(self):
+        app.API_KEY = "kunci-uji"
+        handler = self.handler()
+
+        handler.path = "/api/health"
+        handler.do_GET()
+        self.assertEqual(self.hasil.pop()[0], 200)
+
+        handler.path = "/api/halte"
+        handler.do_GET()
+        self.assertEqual(self.hasil.pop()[0], 401)
+
+        handler.headers = {"X-API-Key": "salah"}
+        handler.do_GET()
+        self.assertEqual(self.hasil.pop()[0], 401)
+
+        handler.headers = {"X-API-Key": "kunci-uji"}
+        handler.do_GET()
+        self.assertEqual(self.hasil.pop()[0], 200)
+
+        payload = b'{"sisa_menit":4,"waktu_jalan_menit":5}'
+        handler.path = "/api/risiko-transfer"
+        handler.headers = {}
+        handler.do_POST()
+        self.assertEqual(self.hasil.pop()[0], 401)
+
+        handler.headers = {"X-API-Key": "kunci-uji", "Content-Length": str(len(payload))}
+        handler.rfile = BytesIO(payload)
+        handler.do_POST()
+        self.assertEqual(self.hasil.pop()[0], 200)
 
 
 if __name__ == "__main__":
