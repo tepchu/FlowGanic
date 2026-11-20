@@ -6,6 +6,7 @@ Microservice mobilitas multimoda Jakarta untuk Tugas 2 II3160 TST × II3140 PWAM
 | --- | --- |
 | Kelompok | `kononkatanya` (K01) |
 | Base URL | **https://kononkatanya.stei.fun/api** |
+| Dokumentasi interaktif | **https://kononkatanya.stei.fun/api/docs** |
 | Repositori | https://github.com/tepchu/FlowGanic |
 | Autentikasi | Header `X-API-Key` pada semua endpoint kecuali `/health` |
 
@@ -53,16 +54,23 @@ Aplikasi mobile / kelompok lain
 | Komponen | Teknologi | Fungsi | Batas sumber daya |
 | --- | --- | --- | --- |
 | `core-service` | Python 3.12 standard library, SQLite | Data halte, pencarian rute, ETA, risiko transfer, pemeriksaan API key | 0,5 CPU · 256 MB |
-| `gateway` | Nginx 1.28 Alpine | Meneruskan `/api/*`, membatasi 5 req/detik per IP | 0,25 CPU · 64 MB |
+| `gateway` | Nginx 1.28 Alpine | Meneruskan `/api/*`, menyajikan `/api/docs`, membatasi 5 req/detik per IP | 0,25 CPU · 64 MB |
 | `cloudflared` | Cloudflare Tunnel | HTTPS publik tanpa membuka port | service host |
 
 Core service dan database tidak mempublikasikan port sama sekali. Gateway hanya terikat ke `127.0.0.1` di STB, sehingga tidak terjangkau dari jaringan lokal maupun internet kecuali melalui tunnel. Semua container memakai `restart: unless-stopped` agar hidup kembali setelah listrik padam.
+
+Gateway juga menjadi pintu depan tunggal bagi seluruh domain. Path di luar `/api` diteruskan ke aaPanel yang berjalan di host pada port 1122, mengikuti ketentuan kelas yang meminta panel dapat diakses pada `/aapanel`. Yang diteruskan adalah seluruh path non-`/api`, bukan hanya `/aapanel`, karena panel memuat aset dari path root dan akan tampil tanpa gaya bila hanya satu path yang dirutekan.
 
 Cloudflared dijalankan sebagai service host mengikuti standar kelas, bukan sebagai container. `compose.yaml` tetap menyediakan service `tunnel` di bawah profil `public` sebagai alternatif bila tunnel ingin dijalankan dalam container; bila alternatif itu dipakai, Public Hostname harus diarahkan ke `gateway:80`, bukan `localhost`.
 
 ## Daftar endpoint
 
-Base URL: `https://kononkatanya.stei.fun/api`. Spesifikasi mesin ada di [`openapi.yaml`](openapi.yaml).
+Base URL: `https://kononkatanya.stei.fun/api`. Spesifikasi mesin ada di [`openapi.yaml`](openapi.yaml)
+dan disajikan pada `https://kononkatanya.stei.fun/api/openapi.yaml`.
+
+Dokumentasi interaktif tersedia di **https://kononkatanya.stei.fun/api/docs**. Halaman itu
+memuat Swagger UI: tekan **Authorize**, masukkan API key, lalu setiap endpoint dapat dicoba
+langsung dari peramban lewat tombol **Try it out** tanpa perlu curl atau Postman.
 
 | Metode | Path | Kunci | Masukan | Keluaran |
 | --- | --- | --- | --- | --- |
