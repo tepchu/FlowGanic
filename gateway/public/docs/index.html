@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FlowGanic API — Dokumentasi</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.17.14/swagger-ui.css">
+  <style>
+    body { margin: 0; background: #fafafa; }
+    .topbar { display: none; }
+    .catatan {
+      max-width: 1460px; margin: 0 auto; padding: 16px 20px;
+      font: 14px/1.6 -apple-system, "Helvetica Neue", Arial, sans-serif; color: #3b4149;
+      background: #fff; border-bottom: 1px solid #e2e5ea;
+    }
+    .catatan h1 { margin: 0 0 6px; font-size: 20px; color: #1b1f24; }
+    .catatan code { background: #f0f2f4; padding: 1px 5px; border-radius: 3px; }
+    .catatan p { margin: 6px 0 0; }
+  </style>
+</head>
+<body>
+  <div class="catatan">
+    <h1>FlowGanic API</h1>
+    <p>Layanan mobilitas multimoda Jakarta, kelompok <code>kononkatanya</code>. Base URL
+       <code>https://kononkatanya.stei.fun/api</code>.</p>
+    <p>Semua endpoint kecuali <code>/health</code> memerlukan header <code>X-API-Key</code>.
+       Tekan <strong>Authorize</strong> di bawah, masukkan kunci dari kelompok, lalu pakai
+       <strong>Try it out</strong> pada endpoint mana pun.</p>
+    <p>Data halte, ruas, dan jadwal masih <strong>data contoh</strong>, bukan feed operator dan
+       bukan hasil model AI. Setiap respons memuat label <code>sumber</code> atau
+       <code>metode</code>.</p>
+  </div>
+  <div id="swagger"></div>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.17.14/swagger-ui-bundle.js"></script>
+  <script>
+    window.ui = SwaggerUIBundle({
+      url: "/openapi.yaml",
+      dom_id: "#swagger",
+      deepLinking: true,
+      tryItOutEnabled: true,
+      persistAuthorization: true,
+      defaultModelsExpandDepth: -1,
+      presets: [SwaggerUIBundle.presets.apis]
+    });
+  </script>
+</body>
+</html>
