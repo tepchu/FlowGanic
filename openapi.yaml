@@ -1,0 +1,76 @@
+openapi: 3.0.3
+info:
+  title: FlowGanic API
+  version: 0.1.0
+  description: Data jaringan dan jadwal contoh; belum memakai feed real-time atau AI.
+servers:
+  - url: /api
+paths:
+  /health:
+    get:
+      summary: Cek layanan
+      responses:
+        '200':
+          description: Layanan aktif
+  /halte:
+    get:
+      summary: Daftar halte contoh
+      responses:
+        '200':
+          description: Daftar halte dan sumber data
+  /rute:
+    get:
+      summary: Rencanakan rute multimoda
+      parameters:
+        - in: query
+          name: asal
+          required: true
+          schema: {type: string}
+          example: blok-m
+        - in: query
+          name: tujuan
+          required: true
+          schema: {type: string}
+          example: manggarai
+      responses:
+        '200':
+          description: Langkah rute, total menit, dan sumber jaringan contoh
+        '400':
+          description: Parameter wajib belum diisi
+        '404':
+          description: Halte tidak ditemukan atau tidak terhubung
+  /eta:
+    get:
+      summary: Waktu tunggu dari interval contoh
+      parameters:
+        - in: query
+          name: halte_id
+          required: true
+          schema: {type: string}
+          example: blok-m
+      responses:
+        '200':
+          description: Waktu tunggu per moda dan sumber jadwal contoh
+        '400':
+          description: Parameter wajib belum diisi
+        '404':
+          description: Halte tidak ditemukan
+  /risiko-transfer:
+    post:
+      summary: Hitung risiko berdasarkan jeda transfer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sisa_menit, waktu_jalan_menit]
+              properties:
+                sisa_menit: {type: integer, minimum: 0}
+                waktu_jalan_menit: {type: integer, minimum: 0}
+            example: {sisa_menit: 4, waktu_jalan_menit: 5}
+      responses:
+        '200':
+          description: Jeda menit dan tingkat risiko
+        '400':
+          description: Masukan tidak valid
