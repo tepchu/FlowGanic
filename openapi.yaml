@@ -4,7 +4,10 @@ info:
   version: 0.2.0
   description: Data jaringan dan jadwal contoh; belum memakai feed real-time atau AI.
 servers:
+  - url: https://kononkatanya.stei.fun/api
+    description: Produksi, STB via Cloudflare Tunnel
   - url: /api
+    description: Relatif terhadap host, untuk uji lokal
 components:
   securitySchemes:
     ApiKeyAuth:
