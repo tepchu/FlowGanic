@@ -118,13 +118,28 @@ class Api(BaseHTTPRequestHandler):
             return True
         return hmac.compare_digest(self.headers.get("X-API-Key", ""), API_KEY)
 
+    def lintas_asal(self):
+        # API dipakai aplikasi web dan kelompok lain dari origin berbeda.
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-API-Key")
+        self.send_header("Access-Control-Max-Age", "86400")
+
     def kirim(self, kode, isi):
         data = json.dumps(isi, ensure_ascii=False).encode()
         self.send_response(kode)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(data)))
+        self.lintas_asal()
         self.end_headers()
         self.wfile.write(data)
+
+    def do_OPTIONS(self):
+        # Preflight tidak membawa kunci, jadi tidak diperiksa di sini.
+        self.send_response(204)
+        self.lintas_asal()
+        self.send_header("Content-Length", "0")
+        self.end_headers()
 
     def do_GET(self):
         url = urlparse(self.path)

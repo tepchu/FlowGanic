@@ -87,8 +87,8 @@ export default function App() {
 
 const styles = StyleSheet.create({
   pemuat: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: WARNA.latar },
-  ikon: { fontSize: 18 },
-  labelTab: { fontSize: 11 },
+  ikon: { fontSize: 15, lineHeight: 17 },
+  labelTab: { fontSize: 10, lineHeight: 12 },
   kepala: { backgroundColor: WARNA.kartu },
   kepalaJudul: { color: WARNA.teks },
 });

@@ -89,5 +89,18 @@ class FlowganicTest(unittest.TestCase):
         self.assertEqual(self.hasil.pop()[0], 200)
 
 
+    def test_lintas_asal(self):
+        handler = self.handler()
+        terkirim = []
+        handler.send_response = lambda kode: terkirim.append(("status", kode))
+        handler.send_header = lambda nama, nilai: terkirim.append((nama, nilai))
+        handler.end_headers = lambda: None
+        handler.do_OPTIONS()
+        kepala = dict(terkirim)
+        self.assertEqual(kepala["status"], 204)
+        self.assertEqual(kepala["Access-Control-Allow-Origin"], "*")
+        self.assertIn("X-API-Key", kepala["Access-Control-Allow-Headers"])
+
+
 if __name__ == "__main__":
     unittest.main()

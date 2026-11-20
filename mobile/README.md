@@ -138,6 +138,36 @@ React Native tidak mengenal media query CSS, jadi titik ubah dibaca lewat `useWi
 
 Target sentuh tombol dan kolom isian dijaga minimal 48 pt. Semua layar memakai `ScrollView` atau `FlatList` agar tetap terpakai pada layar pendek ketika papan ketik terbuka.
 
+## Tangkapan layar
+
+Diambil pada 20 November 2026 dari aplikasi yang berjalan, viewport 420 × 900. Seluruh data pada gambar berasal dari pemanggilan API sungguhan, bukan tiruan.
+
+Pada sesi ini aplikasi diarahkan ke instans microservice lokal yang kodenya identik dengan yang berjalan di STB, sehingga API key produksi tidak ikut terekam dalam gambar. Itu sebabnya layar Profil menampilkan base URL lokal.
+
+### Login dan validasi
+
+| Layar Masuk | Validasi kolom kosong | Kredensial terisi |
+| --- | --- | --- |
+| ![Layar Masuk](docs/1-masuk.png) | ![Validasi](docs/2-validasi.png) | ![Terisi](docs/3-terisi.png) |
+
+Menekan **Masuk** tanpa mengisi apa pun memunculkan pesan galat di bawah tiap kolom beserta garis tepi merah, dan tidak ada permintaan jaringan yang dikirim.
+
+### Layar utama dan navigasi tab
+
+| Halte | Detail halte | Rute |
+| --- | --- | --- |
+| ![Halte](docs/4-halte.png) | ![Detail halte](docs/5-detail-halte.png) | ![Rute](docs/6-rute.png) |
+
+Tab Halte memuat tujuh halte dari `GET /halte` dengan label sumber data contoh. Mengetuk sebuah kartu mendorong layar DetailHalte di atas tab melalui stack, menampilkan waktu tunggu dari `GET /eta`. Tab Rute mencari `blok-m` ke `manggarai` lewat `GET /rute` dan mengembalikan 39 menit dalam tiga langkah, lengkap dengan penanda moda.
+
+| Risiko transfer | Profil |
+| --- | --- |
+| ![Risiko](docs/7-risiko.png) | ![Profil](docs/8-profil.png) |
+
+Risiko transfer mengirim `POST /risiko-transfer` dengan sisa waktu 4 menit dan waktu jalan kaki 5 menit, lalu menampilkan jeda minus satu menit dengan tingkat tinggi. Profil memanggil `GET /health` dan menampilkan `flowganic: ok`, sekaligus menunjukkan status konfigurasi mitra Tugas 3 yang memang belum diisi.
+
+Keempat tab terlihat pada bilah bawah di setiap gambar, dan tab yang sedang aktif ditandai berbeda dari yang lain. Itu bukti navigasi tab bekerja; layar DetailHalte yang tampil dengan tombol kembali dan tanpa bilah tab adalah bukti stack bekerja.
+
 ## Status
 
 | Bagian | Keadaan |
