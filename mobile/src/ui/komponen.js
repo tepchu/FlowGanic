@@ -80,6 +80,46 @@ export function Tombol({ label, onPress, sibuk, jenis = "utama" }) {
   );
 }
 
+// Pilihan berupa deretan chip: menghindari dependensi picker dan tetap
+// nyaman disentuh pada layar sempit karena membungkus ke baris berikutnya.
+export function Pilihan({ label, nilai, opsi, onPilih, galat }) {
+  return (
+    <View style={styles.kolom}>
+      {label ? <Text style={styles.label}>{label}</Text> : null}
+      <View style={styles.deret}>
+        {opsi.map((o) => {
+          const terpilih = o.nilai === nilai;
+          return (
+            <Pressable
+              key={String(o.nilai)}
+              onPress={() => onPilih(o.nilai)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: terpilih }}
+              style={({ pressed }) => [
+                styles.chip,
+                terpilih && styles.chipAktif,
+                pressed && styles.tombolTekan,
+              ]}
+            >
+              <Text style={[styles.chipTeks, terpilih && styles.chipTeksAktif]}>{o.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+      {galat ? <Text style={styles.pesanGalat}>{galat}</Text> : null}
+    </View>
+  );
+}
+
+export function Baris({ kiri, kanan }) {
+  return (
+    <View style={styles.barisData}>
+      <Text style={styles.barisKiri}>{kiri}</Text>
+      <Text style={styles.barisKanan}>{kanan}</Text>
+    </View>
+  );
+}
+
 export function Pesan({ nada = "galat", children }) {
   if (!children) return null;
   return (
@@ -137,6 +177,30 @@ const styles = StyleSheet.create({
   tombolTekan: { opacity: 0.7 },
   tombolTeks: { color: "#fff", fontWeight: "700", fontSize: 16 },
   tombolTeksGaris: { color: WARNA.utama },
+  deret: { flexDirection: "row", flexWrap: "wrap", gap: JARAK.sm },
+  chip: {
+    borderWidth: 1,
+    borderColor: WARNA.garis,
+    backgroundColor: WARNA.kartu,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    minHeight: 40,
+    justifyContent: "center",
+  },
+  chipAktif: { borderColor: WARNA.utama, backgroundColor: WARNA.utamaRedup },
+  chipTeks: { color: WARNA.teks, fontSize: 14, fontWeight: "600" },
+  chipTeksAktif: { color: WARNA.utama },
+  barisData: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: JARAK.sm,
+    borderTopWidth: 1,
+    borderTopColor: WARNA.garis,
+  },
+  barisKiri: { color: WARNA.teksRedup, fontSize: 14, flexShrink: 1 },
+  barisKanan: { color: WARNA.teks, fontSize: 14, fontWeight: "600", marginLeft: JARAK.md },
   pesan: { borderRadius: 10, padding: JARAK.md, marginBottom: JARAK.md },
   pesanMerah: { backgroundColor: "#fdecea" },
   pesanBiru: { backgroundColor: WARNA.utamaRedup },

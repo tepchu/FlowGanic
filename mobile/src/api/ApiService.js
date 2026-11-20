@@ -53,7 +53,7 @@ function url(jalur, kueri) {
   const dasar = `${KONFIG.baseUrl}${jalur}`;
   if (!kueri) return dasar;
   const bagian = Object.entries(kueri)
-    .filter(([, nilai]) => nilai !== undefined && nilai !== "")
+    .filter(([, nilai]) => nilai !== undefined && nilai !== null && nilai !== "")
     .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`);
   return bagian.length ? `${dasar}?${bagian.join("&")}` : dasar;
 }
@@ -62,23 +62,44 @@ function url(jalur, kueri) {
 
 export const ApiFlowGanic = {
   cekKesehatan: () => minta(url("/health"), {}, ""),
-  ambilHalte: () => minta(url("/halte")),
-  cariRute: (asal, tujuan) => minta(url("/rute", { asal, tujuan })),
-  ambilEta: (halteId) => minta(url("/eta", { halte_id: halteId })),
-  hitungRisiko: (sisaMenit, waktuJalanMenit) =>
-    minta(url("/risiko-transfer"), {
+
+  // Konteks Identitas dan Wilayah
+  ambilWilayah: () => minta(url("/wilayah")),
+  ambilPengolah: (wilayahId, jenis) => minta(url("/pengolah", { wilayah_id: wilayahId, jenis })),
+
+  // Konteks inti: Koordinasi Distribusi Sampah
+  ajukanPermintaan: ({ penghasilRef, wilayahId, jenis, perkiraanKg, jadwal }) =>
+    minta(url("/permintaan"), {
       method: "POST",
       body: JSON.stringify({
-        sisa_menit: Number(sisaMenit),
-        waktu_jalan_menit: Number(waktuJalanMenit),
+        penghasil_ref: penghasilRef,
+        wilayah_id: wilayahId,
+        jenis,
+        perkiraan_kg: Number(perkiraanKg),
+        jadwal,
       }),
     }),
+  lacakPermintaan: (id) => minta(url(`/permintaan/${encodeURIComponent(id)}`)),
+  perbaruiPermintaan: (id, aksi, volumeKg) =>
+    minta(url(`/permintaan/${encodeURIComponent(id)}`), {
+      method: "PATCH",
+      body: JSON.stringify(volumeKg === undefined ? { aksi } : { aksi, volume_kg: Number(volumeKg) }),
+    }),
+
+  // Konteks Analitik dan Pelaporan
+  ambilRekap: (saringan = {}) =>
+    minta(url("/rekap", {
+      wilayah_id: saringan.wilayahId,
+      jenis: saringan.jenis,
+      dari: saringan.dari,
+      sampai: saringan.sampai,
+    })),
 };
 
 // --- API kelompok lain (Tugas 3) --------------------------------------------
-// Syarat PWAM: memanggil microservice sendiri + API minimal dua kelompok lain.
-// Base URL dan kunci diisi setelah kelompok mitra mengumumkannya di API Registry.
-// Jangan menuliskan kunci di sini; pakai variabel EXPO_PUBLIC_* pada .env.
+// Mitra integrasi yang direncanakan pada Tugas 1 adalah kelompok bertema
+// Pendidikan, yang memakai rekap agregat FlowGanic sebagai bahan edukasi.
+// Base URL dan kunci diisi setelah mitra mengumumkannya di API Registry.
 
 export const MITRA = [
   {

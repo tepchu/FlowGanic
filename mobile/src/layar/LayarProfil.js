@@ -54,8 +54,9 @@ export default function LayarProfil() {
         <Kartu>
           <Text style={styles.subjudul}>API kelompok lain</Text>
           <Keterangan style={styles.jarakBawah}>
-            Syarat PWAM: memanggil minimal dua API kelompok lain. Base URL diisi lewat .env
-            setelah kelompok mitra mengumumkannya di API Registry.
+            Mitra yang direncanakan pada Tugas 1 adalah kelompok bertema Pendidikan, yang
+            memakai rekap agregat FlowGanic sebagai bahan edukasi pemilahan sampah. Base URL
+            diisi lewat .env setelah mitra mengumumkannya di API Registry.
           </Keterangan>
           {MITRA.map((m) => (
             <View key={m.id} style={styles.barisMitra}>

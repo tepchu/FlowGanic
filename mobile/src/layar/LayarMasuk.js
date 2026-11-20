@@ -46,7 +46,7 @@ export default function LayarMasuk() {
         <ScrollView contentContainerStyle={styles.gulir} keyboardShouldPersistTaps="handled">
           <View style={styles.kepala}>
             <Text style={styles.merek}>FlowGanic</Text>
-            <Keterangan>Perjalanan multimoda Jakarta dalam satu layar.</Keterangan>
+            <Keterangan>Koordinasi penjemputan sampah RW 05 Lebak Siliwangi, Bandung.</Keterangan>
           </View>
 
           <Kartu>

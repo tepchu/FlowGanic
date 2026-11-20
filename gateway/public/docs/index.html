@@ -21,14 +21,18 @@
 <body>
   <div class="catatan">
     <h1>FlowGanic API</h1>
-    <p>Layanan mobilitas multimoda Jakarta, kelompok <code>kononkatanya</code>. Base URL
+    <p>Koordinasi distribusi sampah Kota Bandung, kelompok <code>kononkatanya</code>.
+       Wilayah pilot RW 05 Lebak Siliwangi, Kecamatan Coblong. Base URL
        <code>https://kononkatanya.stei.fun/api</code>.</p>
     <p>Semua endpoint kecuali <code>/health</code> memerlukan header <code>X-API-Key</code>.
        Tekan <strong>Authorize</strong> di bawah, masukkan kunci dari kelompok, lalu pakai
        <strong>Try it out</strong> pada endpoint mana pun.</p>
-    <p>Data halte, ruas, dan jadwal masih <strong>data contoh</strong>, bukan feed operator dan
-       bukan hasil model AI. Setiap respons memuat label <code>sumber</code> atau
-       <code>metode</code>.</p>
+    <p>Kelompok mitra memakai <code>/wilayah</code>, <code>/pengolah</code>, dan
+       <code>/rekap</code>. <code>/rekap</code> hanya mengembalikan agregat anonim: akun,
+       alamat, dan riwayat permintaan warga tidak pernah dibuka.</p>
+    <p>Data wilayah, pengolah, dan kapasitas masih <strong>data contoh</strong> untuk menguji
+       alur koordinasi, bukan data operasional. Setiap respons memuat label
+       <code>sumber</code>.</p>
   </div>
   <div id="swagger"></div>
   <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.17.14/swagger-ui-bundle.js"></script>
