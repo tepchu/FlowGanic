@@ -84,7 +84,7 @@ Aplikasi mobile / kelompok mitra
 
 Core service dan database tidak mempublikasikan port sama sekali. Gateway hanya terikat ke `127.0.0.1` di STB, sehingga tidak terjangkau dari jaringan lokal maupun internet kecuali melalui tunnel. Semua container memakai `restart: unless-stopped` agar hidup kembali setelah listrik padam.
 
-Gateway juga menjadi pintu depan tunggal bagi seluruh domain. Path di luar `/api` diteruskan ke aaPanel yang berjalan di host pada port 1122, mengikuti ketentuan kelas yang meminta panel dapat diakses pada `/aapanel`. Yang diteruskan adalah seluruh path non-`/api`, bukan hanya `/aapanel`, karena panel memuat aset dari path root.
+Perutean di sisi Cloudflare memisahkan dua layanan pada hostname yang sama: path `^/api(/.*)?$` diteruskan ke gateway ini, sedangkan path lain diarahkan ke panel administrasi STB di port 1122 dan tidak pernah menyentuh microservice. Karena itu gateway hanya perlu mengenal `/api`, dan menjawab 404 untuk selebihnya.
 
 ## Daftar endpoint
 
