@@ -1,0 +1,735 @@
+<html><head><meta charset="utf-8"><title>FlowGanic — Dokumentasi Tugas 2</title></head><body style="font-family:Arial,sans-serif;font-size:11pt">
+<p style="text-align:center">Tugas Kelompok Pengembangan Aplikasi Web dan Mobile (II3140) x
+Teknologi Sistem Terintegrasi (II3160) 2026 — Tugas Besar (2):
+Dokumentasi Aplikasi dan Microservice</p>
+<h1 class="unnumbered"
+id="flowganic-dokumentasi-kerangka-aplikasi-navigasi-layar-login-dan-api" style="text-align:center">FlowGanic:
+Dokumentasi Kerangka Aplikasi, Navigasi, Layar, Login, dan API</h1>
+<p style="text-align:center">Disusun oleh Kelompok <strong>kononkatanya</strong> (K01)</p>
+<table border="1" cellpadding="5" cellspacing="0" align="center" style="border-collapse:collapse;border:1px solid #666">
+<thead>
+<tr>
+<th>NIM</th>
+<th>Nama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>18224067</td>
+<td>Bryant Azraqi Mohammad</td>
+</tr>
+<tr>
+<td>18224117</td>
+<td>Stephanie Mae</td>
+</tr>
+</tbody>
+</table>
+<p style="text-align:center">Link repositori (microservice dan aplikasi mobile):
+https://github.com/tepchu/FlowGanic</p>
+<p style="text-align:center">Base URL microservice: https://kononkatanya.stei.fun/api</p>
+<p style="text-align:center">Program Studi Sistem dan Teknologi Informasi</p>
+<p style="text-align:center">Sekolah Teknik Elektro dan Informatika</p>
+<p style="text-align:center">Institut Teknologi Bandung</p>
+<p style="text-align:center">2026</p>
+<br clear="all" style="page-break-before:always" />
+<h1 class="unnumbered" id="daftar-isi" style="text-align:center">DAFTAR ISI</h1>
+<p>BAB 1 KERANGKA APLIKASI</p>
+<p>BAB 2 NAVIGASI DAN LAYAR</p>
+<p>BAB 3 LOGIN DAN AUTENTIKASI</p>
+<p>BAB 4 API</p>
+<br clear="all" style="page-break-before:always" />
+<h1 id="bab-1-kerangka-aplikasi" style="text-align:center">BAB 1 KERANGKA APLIKASI</h1>
+<p style="text-align:justify;text-indent:0.4in">FlowGanic adalah platform koordinasi distribusi sampah Kota Bandung
+dengan wilayah pilot RW 05 Lebak Siliwangi, Kecamatan Coblong. Penghasil
+sampah, pengolah, koordinator RW, dan dinas selama ini bekerja terpisah
+sehingga informasi tentang sampah yang dihasilkan dan yang berhasil
+dikelola tidak saling terhubung. FlowGanic menyatukan keempat pihak itu
+dalam satu alur yang terlacak: rumah tangga mengajukan penjemputan,
+sistem mencocokkannya dengan pengolah yang masih memiliki sisa
+kapasitas, pengolah mengonfirmasi volume yang benar-benar diterima, dan
+koordinator membaca rekap agregat yang tidak pernah menunjuk rumah
+tangga mana pun.</p>
+<p style="text-align:justify;text-indent:0.4in">Pekerjaan ini terdiri atas dua bagian dalam satu repositori.
+Microservice ditulis dengan Python 3.12 dan berjalan di STB sebagai
+container Docker, sedangkan aplikasi mobile dibangun dengan React
+Native, yaitu kerangka kerja untuk membuat aplikasi Android dan iOS dari
+satu basis kode JavaScript, dan dijalankan memakai Expo, yaitu perangkat
+bantu yang menyederhanakan pengembangan dan pengujian React Native.
+Seluruh data wilayah, pengolah, permintaan, dan rekap berasal dari
+microservice, sehingga aplikasi hanya bertugas menampilkan data dan
+mengirim pengajuan pengguna.</p>
+<p style="text-align:justify;text-indent:0.4in">Gambar 1 menunjukkan hubungan antar bagian sistem. Aplikasi memanggil
+alamat publik microservice melalui HTTPS. Permintaan melewati Cloudflare
+Tunnel, yaitu jalur aman dari internet ke STB tanpa membuka port di
+jaringan rumah, lalu diteruskan ke gateway Nginx dan ke service core
+yang menyimpan datanya pada SQLite. Kelompok lain mengakses gateway yang
+sama menggunakan API key.</p>
+<p style="text-align:center"><img
+src="https://raw.githubusercontent.com/tepchu/FlowGanic/main/docs/arsitektur.png"  width="586" /></p>
+<p style="text-align:center"><i>Gambar 1. Arsitektur aplikasi mobile dan microservice FlowGanic</i></p>
+<h2 id="teknologi-yang-digunakan">1.1 Teknologi yang digunakan</h2>
+<p style="text-align:justify;text-indent:0.4in">Tabel 1 merangkum teknologi pada sisi aplikasi dan sisi layanan
+beserta fungsinya.</p>
+<p style="text-align:center"><i>Tabel 1. Teknologi yang digunakan</i></p>
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;border:1px solid #666">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Komponen</th>
+<th>Teknologi</th>
+<th>Fungsi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Aplikasi mobile</td>
+<td>React Native 0.88 dan Expo SDK 58</td>
+<td>Membangun antarmuka untuk Android dan iOS</td>
+</tr>
+<tr>
+<td>Navigasi</td>
+<td>React Navigation (native stack dan bottom tabs)</td>
+<td>Perpindahan antar layar dan menu tab bawah</td>
+</tr>
+<tr>
+<td>Penyimpanan sesi</td>
+<td>AsyncStorage</td>
+<td>Menyimpan sesi login di perangkat</td>
+</tr>
+<tr>
+<td>Pemanggilan API</td>
+<td><code>fetch</code> dengan pembungkus <code>ApiService</code></td>
+<td>Mengirim permintaan, menyisipkan API key, menangani galat dan batas
+waktu</td>
+</tr>
+<tr>
+<td>Layanan inti</td>
+<td>Python 3.12 standard library</td>
+<td>Wilayah, pengolah, permintaan, pencocokan, dan rekap</td>
+</tr>
+<tr>
+<td>Basis data</td>
+<td>SQLite</td>
+<td>Menyimpan wilayah, pengolah, kapasitas, dan permintaan</td>
+</tr>
+<tr>
+<td>Gateway</td>
+<td>Nginx 1.28 Alpine</td>
+<td>Pintu masuk tunggal dan pembatas laju permintaan</td>
+</tr>
+<tr>
+<td>Penerapan</td>
+<td>Docker Compose dan Cloudflare Tunnel di STB</td>
+<td>Menjalankan layanan dan membukanya ke internet</td>
+</tr>
+</tbody>
+</table>
+<h2 id="struktur-proyek">1.2 Struktur proyek</h2>
+<p style="text-align:justify;text-indent:0.4in">Kode dipisah berdasarkan tanggung jawab agar mudah dipelihara,
+seperti pada Tabel 2. Layar hanya mengurus tampilan dan interaksi,
+sedangkan seluruh pemanggilan jaringan berada di <code>ApiService</code>
+dan status login berada di <code>SesiContext</code>.</p>
+<p style="text-align:center"><i>Tabel 2. Struktur folder dan berkas</i></p>
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;border:1px solid #666">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Lokasi</th>
+<th>Tanggung jawab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>core-service/app.py</code></td>
+<td>Model domain, pencocokan pengolah, rekap, pemeriksaan API key</td>
+</tr>
+<tr>
+<td><code>core-service/test_app.py</code></td>
+<td>Uji domain, aturan bisnis, lapisan HTTP, dan autentikasi</td>
+</tr>
+<tr>
+<td><code>gateway/nginx.conf</code></td>
+<td>Reverse proxy, batas laju, penyajian dokumentasi</td>
+</tr>
+<tr>
+<td><code>compose.yaml</code></td>
+<td>Definisi container beserta batas CPU dan memori</td>
+</tr>
+<tr>
+<td><code>openapi.yaml</code></td>
+<td>Kontrak tujuh endpoint, disajikan sebagai Swagger UI</td>
+</tr>
+<tr>
+<td><code>mobile/App.js</code></td>
+<td>Titik masuk: menyusun navigasi dan membungkus penyedia sesi</td>
+</tr>
+<tr>
+<td><code>mobile/src/api/ApiService.js</code></td>
+<td>Satu-satunya tempat pemanggilan HTTP keluar</td>
+</tr>
+<tr>
+<td><code>mobile/src/konteks/SesiContext.js</code></td>
+<td>Status login, simpan dan hapus sesi</td>
+</tr>
+<tr>
+<td><code>mobile/src/layar/</code></td>
+<td>Enam layar aplikasi</td>
+</tr>
+<tr>
+<td><code>mobile/src/ui/</code></td>
+<td>Komponen pakai-ulang, tema, dan titik ubah mobile first</td>
+</tr>
+</tbody>
+</table>
+<p style="text-align:justify;text-indent:0.4in">Aturan yang dipegang: layar tidak pernah memanggil <code>fetch</code>
+sendiri, selalu lewat <code>ApiService</code>, dan tidak ada URL maupun
+kunci yang ditulis di dalam kode karena semuanya dibaca dari berkas
+<code>.env</code>.</p>
+<h2 id="pembagian-domain">1.3 Pembagian domain</h2>
+<p style="text-align:justify;text-indent:0.4in">Rancangan Tugas 1 memecah domain menjadi tiga bounded context, dan
+pembagian itu dipertahankan apa adanya pada API seperti terlihat di
+Tabel 3. Konteks hilir hanya membaca hitungan dan volume, tidak pernah
+isi permintaan maupun identitas penghasil.</p>
+<p style="text-align:center"><i>Tabel 3. Bounded context dan pemetaannya ke endpoint</i></p>
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;border:1px solid #666">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Bounded context</th>
+<th>Peran</th>
+<th>Endpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Koordinasi Distribusi Sampah (core)</td>
+<td>Pengajuan, pencocokan, penjadwalan, pelacakan status dan volume</td>
+<td><code>POST /permintaan</code>, <code>GET /permintaan/{id}</code>,
+<code>PATCH /permintaan/{id}</code></td>
+</tr>
+<tr>
+<td>Identitas dan Wilayah (supporting)</td>
+<td>Wilayah layanan dan profil pengolah</td>
+<td><code>GET /wilayah</code>, <code>GET /pengolah</code></td>
+</tr>
+<tr>
+<td>Analitik dan Pelaporan (supporting)</td>
+<td>Rekapitulasi agregat dan anonim</td>
+<td><code>GET /rekap</code></td>
+</tr>
+</tbody>
+</table>
+<p style="text-align:justify;text-indent:0.4in">Tiga wilayah, empat pengolah, dan seluruh kapasitasnya adalah data
+contoh untuk menguji alur koordinasi, bukan data operasional Kota
+Bandung. Setiap respons memuat label <code>sumber</code> agar batasan
+ini terlihat oleh pemakai API.</p>
+<br clear="all" style="page-break-before:always" />
+<h1 id="bab-2-navigasi-dan-layar" style="text-align:center">BAB 2 NAVIGASI DAN LAYAR</h1>
+<p style="text-align:justify;text-indent:0.4in">Navigasi aplikasi memakai React Navigation dan terbagi dua jalur
+seperti pada Gambar 2. Pengguna yang belum memiliki sesi hanya mendapat
+satu layar, yaitu Masuk. Setelah login berhasil, stack terluar berpindah
+ke cabang Utama yang memiliki empat tab: Ajukan, Pengolah, Rekap, dan
+Profil. Layar DetailPermintaan didorong di atas bilah tab dari tab
+Ajukan, sehingga tombol kembali selalu membawa pengguna ke layar
+sebelumnya.</p>
+<p style="text-align:center"><img
+src="https://raw.githubusercontent.com/tepchu/FlowGanic/main/docs/navigasi.png"  width="586" /></p>
+<p style="text-align:center"><i>Gambar 2. Peta navigasi aplikasi FlowGanic</i></p>
+<p style="text-align:justify;text-indent:0.4in">Peralihan masuk dan keluar tidak memakai perintah navigasi.
+<code>SesiContext</code> mengubah status, lalu stack merender cabang
+yang sesuai. Akibatnya layar bertab tidak mungkin terbuka tanpa sesi,
+dan tombol kembali tidak dapat mengembalikan pengguna ke halaman dalam
+setelah keluar.</p>
+<h2 id="daftar-layar">2.1 Daftar layar</h2>
+<p style="text-align:justify;text-indent:0.4in">Tabel 4 merangkum enam layar beserta endpoint API yang dipanggil
+masing-masing.</p>
+<p style="text-align:center"><i>Tabel 4. Daftar layar dan endpoint yang dipanggil</i></p>
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;border:1px solid #666">
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Layar</th>
+<th>Letak</th>
+<th>Fungsi</th>
+<th>Endpoint API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Masuk</td>
+<td>Stack</td>
+<td>Form surel dan kata sandi beserta validasinya</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Ajukan</td>
+<td>Tab</td>
+<td>Pilih wilayah dan jenis, isi berat dan tanggal, lihat permintaan
+terakhir</td>
+<td><code>GET /wilayah</code>, <code>POST /permintaan</code>,
+<code>GET /permintaan/{id}</code></td>
+</tr>
+<tr>
+<td>Pengolah</td>
+<td>Tab</td>
+<td>Daftar fasilitas penerima dengan saringan wilayah dan jenis</td>
+<td><code>GET /wilayah</code>, <code>GET /pengolah</code></td>
+</tr>
+<tr>
+<td>Rekap</td>
+<td>Tab</td>
+<td>Total terkelola dan rincian per jenis sampah</td>
+<td><code>GET /wilayah</code>, <code>GET /rekap</code></td>
+</tr>
+<tr>
+<td>Profil</td>
+<td>Tab</td>
+<td>Identitas pengguna, base URL, cek status layanan, keluar</td>
+<td><code>GET /health</code></td>
+</tr>
+<tr>
+<td>DetailPermintaan</td>
+<td>Stack</td>
+<td>Status, pengolah hasil pencocokan, tindakan pengolah</td>
+<td><code>GET /permintaan/{id}</code>,
+<code>PATCH /permintaan/{id}</code></td>
+</tr>
+</tbody>
+</table>
+<p style="text-align:justify;text-indent:0.4in">Tiap layar yang memanggil jaringan memiliki tiga keadaan: sedang
+memuat dengan indikator, berhasil, dan gagal dengan pesan beserta tombol
+coba lagi. Layar yang menampilkan data contoh selalu menyertakan label
+sumbernya, sehingga pengguna tidak menyangka itu informasi
+operasional.</p>
+<h2 id="tampilan-layar">2.2 Tampilan layar</h2>
+<p style="text-align:justify;text-indent:0.4in">Gambar 3 sampai Gambar 5 memperlihatkan layar-layar tersebut pada
+aplikasi yang berjalan, diambil 20 November 2026 pada viewport 420 x
+900. Seluruh data pada gambar berasal dari pemanggilan API sungguhan,
+bukan tiruan. Pada sesi perekaman ini aplikasi diarahkan ke instans
+microservice lokal yang kodenya identik dengan yang berjalan di STB,
+agar API key produksi tidak ikut terekam dalam gambar. Itu sebabnya
+layar Profil menampilkan base URL lokal.</p>
+<table border="0" cellpadding="4" style="border:none">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<tbody>
+<tr>
+<td><img
+src="https://raw.githubusercontent.com/tepchu/FlowGanic/main/mobile/docs/1-masuk.png"  width="168" /></td>
+<td><img
+src="https://raw.githubusercontent.com/tepchu/FlowGanic/main/mobile/docs/2-validasi.png"  width="168" /></td>
+<td><img
+src="https://raw.githubusercontent.com/tepchu/FlowGanic/main/mobile/docs/3-terisi.png"  width="168" /></td>
+</tr>
+</tbody>
+</table>
+<p style="text-align:center"><i>Gambar 3. Layar Masuk (a), validasi kolom kosong (b), dan kredensial
+terisi (c)</i></p>
+<p style="text-align:justify;text-indent:0.4in">Layar Masuk (Gambar 3a) meminta surel dan kata sandi. Menekan tombol
+Masuk tanpa mengisi apa pun memunculkan pesan kesalahan di bawah tiap
+kolom beserta garis tepi merah (Gambar 3b), dan tidak ada permintaan
+jaringan yang dikirim. Bila kedua kolom lolos validasi (Gambar 3c),
+kredensial dicocokkan dengan akun demo dan sesi disimpan.</p>
+<table border="0" cellpadding="4" style="border:none">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<tbody>
+<tr>
+<td><img
+src="https://raw.githubusercontent.com/tepchu/FlowGanic/main/mobile/docs/4-ajukan.png"  width="211" /></td>
+<td><img
+src="https://raw.githubusercontent.com/tepchu/FlowGanic/main/mobile/docs/5-detail-permintaan.png"  width="211" /></td>
+</tr>
+</tbody>
+</table>
+<p style="text-align:center"><i>Gambar 4. Layar Ajukan (a) dan Detail Permintaan (b)</i></p>
+<p style="text-align:justify;text-indent:0.4in">Pada layar Ajukan (Gambar 4a) wilayah dan jenis sampah dipilih lewat
+chip, bukan picker, agar tetap nyaman disentuh pada layar sempit.
+Setelah dikirim, <code>POST /permintaan</code> mengembalikan permintaan
+beserta pengolah hasil pencocokan, dan aplikasi mendorong layar
+DetailPermintaan di atas tab melalui stack. Di layar itu (Gambar 4b)
+tampak status Dijadwalkan dan pengolah <code>komposter-coblong</code>
+yang dipilih sistem berdasarkan wilayah, jenis sampah, dan sisa
+kapasitas hari tersebut. Tombol Konfirmasi selesai dan Tolak penugasan
+memanggil <code>PATCH /permintaan/{id}</code>.</p>
+<table border="0" cellpadding="4" style="border:none">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<tbody>
+<tr>
+<td><img
+src="https://raw.githubusercontent.com/tepchu/FlowGanic/main/mobile/docs/6-pengolah.png"  width="168" /></td>
+<td><img
+src="https://raw.githubusercontent.com/tepchu/FlowGanic/main/mobile/docs/7-rekap.png"  width="168" /></td>
+<td><img
+src="https://raw.githubusercontent.com/tepchu/FlowGanic/main/mobile/docs/8-profil.png"  width="168" /></td>
+</tr>
+</tbody>
+</table>
+<p style="text-align:center"><i>Gambar 5. Layar Pengolah (a), Rekap (b), dan Profil (c)</i></p>
+<p style="text-align:justify;text-indent:0.4in">Tab Pengolah (Gambar 5a) menyaring <code>GET /pengolah</code> per
+wilayah dan jenis, menampilkan kapasitas harian serta seluruh cakupan
+layanan tiap fasilitas. Tab Rekap (Gambar 5b) membaca
+<code>GET /rekap</code>: total sampah terkonfirmasi masuk fasilitas,
+jumlah permintaan, dan rincian per jenis. Inilah bentuk data yang akan
+dibagikan ke kelompok mitra pada Tugas 3, dan tidak satu pun barisnya
+menunjuk rumah tangga tertentu. Profil (Gambar 5c) memanggil
+<code>GET /health</code> dan menampilkan <code>flowganic: ok</code>.</p>
+<p style="text-align:justify;text-indent:0.4in">Keempat tab terlihat pada bilah bawah di setiap gambar dan tab yang
+sedang aktif ditandai berbeda. Itu bukti navigasi tab bekerja, sedangkan
+layar DetailPermintaan yang tampil dengan tombol kembali dan tanpa bilah
+tab adalah bukti stack bekerja.</p>
+<br clear="all" style="page-break-before:always" />
+<h1 id="bab-3-login-dan-autentikasi" style="text-align:center">BAB 3 LOGIN DAN AUTENTIKASI</h1>
+<p style="text-align:justify;text-indent:0.4in">Autentikasi adalah proses memastikan siapa yang mengakses layanan.
+FlowGanic melayani dua jenis pihak dengan cara berbeda, seperti pada
+Tabel 5. Pengguna aplikasi mobile masuk melalui layar Masuk, sedangkan
+kelompok lain memakai API key karena mereka memanggil layanan dari
+server, bukan atas nama seorang warga.</p>
+<p style="text-align:center"><i>Tabel 5. Cara akses menurut jenis pihak</i></p>
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;border:1px solid #666">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Pihak</th>
+<th>Kredensial</th>
+<th>Cakupan akses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pengguna aplikasi</td>
+<td>Sesi lokal, permintaan membawa API key aplikasi</td>
+<td>Wilayah, pengolah, pengajuan dan pelacakan permintaan, rekap</td>
+</tr>
+<tr>
+<td>Kelompok lain</td>
+<td><code>X-API-Key: &lt;kunci&gt;</code></td>
+<td>Dibatasi pada <code>/wilayah</code>, <code>/pengolah</code>, dan
+<code>/rekap</code></td>
+</tr>
+<tr>
+<td>Siapa pun</td>
+<td>Tanpa kredensial</td>
+<td><code>/health</code> dan <code>/docs</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="validasi-dan-penyimpanan-sesi">3.1 Validasi dan penyimpanan
+sesi</h2>
+<p style="text-align:justify;text-indent:0.4in">Validasi dijalankan di perangkat sebelum apa pun dikirim. Surel wajib
+diisi dan harus berpola <code>nama@domain.tld</code>, sedangkan kata
+sandi wajib diisi dan minimal delapan karakter. Pesan galat muncul tepat
+di bawah kolom yang bersangkutan dan kolomnya diberi garis tepi berbeda.
+Bila keduanya lolos, kredensial dicocokkan dengan akun demo
+<code>demo@flowganic.id</code>, lalu sesi disimpan ke AsyncStorage
+sehingga pengguna tetap masuk setelah aplikasi ditutup.</p>
+<p style="text-align:justify;text-indent:0.4in">Login ini diverifikasi di perangkat, bukan di server. Microservice
+FlowGanic baru menyediakan API key antarlayanan dan belum memiliki
+endpoint autentikasi pengguna, jadi belum ada token yang diterbitkan
+server. Batasan ini ditulis terbuka pada layar Masuk agar tidak
+disalahartikan sebagai autentikasi sungguhan. Bila endpoint autentikasi
+ditambahkan kelak, hanya <code>SesiContext</code> dan
+<code>ApiService</code> yang perlu berubah dan layar tidak tersentuh.
+Pengguna diwakili kode anonim <code>rt03-rumah-12</code>, bukan nama
+atau alamat, sesuai batasan privasi pada Tugas 1.</p>
+<h2 id="penanganan-kondisi">3.2 Penanganan kondisi</h2>
+<p style="text-align:justify;text-indent:0.4in">Tabel 6 merangkum apa yang terjadi pada tiap kondisi, baik saat login
+maupun saat memanggil API.</p>
+<p style="text-align:center"><i>Tabel 6. Kondisi dan perilaku aplikasi</i></p>
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;border:1px solid #666">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Kondisi</th>
+<th>Respons</th>
+<th>Perilaku aplikasi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kolom kosong atau format surel salah</td>
+<td>—</td>
+<td>Pesan kesalahan di bawah kolom, tidak ada permintaan ke server</td>
+</tr>
+<tr>
+<td>Kata sandi salah</td>
+<td>—</td>
+<td>Menampilkan “Surel atau kata sandi salah”</td>
+</tr>
+<tr>
+<td>Masukan ditolak layanan</td>
+<td>400</td>
+<td>Menampilkan pesan dari server, misalnya jadwal sudah lewat</td>
+</tr>
+<tr>
+<td>API key ditolak</td>
+<td>401</td>
+<td>Menampilkan “API key ditolak layanan”</td>
+</tr>
+<tr>
+<td>Data tidak ditemukan</td>
+<td>404</td>
+<td>Menampilkan pesan dari server, misalnya wilayah tidak ditemukan</td>
+</tr>
+<tr>
+<td>Terlalu sering memanggil</td>
+<td>429</td>
+<td>Meminta pengguna mencoba lagi sebentar lagi</td>
+</tr>
+<tr>
+<td>Lebih dari 10 detik tanpa jawaban</td>
+<td>—</td>
+<td>Permintaan dibatalkan, pesan layanan tidak menjawab tepat waktu</td>
+</tr>
+<tr>
+<td>Jaringan mati</td>
+<td>—</td>
+<td>Pesan tidak dapat menghubungi layanan beserta tombol coba lagi</td>
+</tr>
+</tbody>
+</table>
+<h2 id="aturan-keamanan">3.3 Aturan keamanan</h2>
+<p style="text-align:justify;text-indent:0.4in">API key tidak pernah disimpan di repositori. Nilainya hanya ada pada
+berkas <code>.env</code> di STB, dibuat dengan
+<code>openssl rand -hex 24</code>, dan dibandingkan di sisi server
+memakai <code>hmac.compare_digest</code> agar tidak bocor lewat
+perbedaan waktu pembandingan. Endpoint <code>/health</code> sengaja
+dibiarkan terbuka supaya status layanan dan tunnel dapat diperiksa tanpa
+kredensial. Gateway membatasi lima permintaan per detik per alamat IP
+dengan burst 20, dan core service maupun basis data tidak memublikasikan
+port sama sekali.</p>
+<br clear="all" style="page-break-before:always" />
+<h1 id="bab-4-api" style="text-align:center">BAB 4 API</h1>
+<p style="text-align:justify;text-indent:0.4in">Aplikasi memanggil microservice milik kelompok sendiri yang dapat
+diakses publik di https://kononkatanya.stei.fun/api. Service ini
+berjalan di STB sebagai dua container Docker dengan batas memori dan CPU
+seperti pada Tabel 7, ditambah cloudflared sebagai layanan systemd di
+host. Seluruhnya memakai <code>restart: unless-stopped</code> sehingga
+menyala kembali bila STB dimulai ulang. Kode sumbernya berada di
+https://github.com/tepchu/FlowGanic, sedangkan dokumentasi interaktif
+Swagger tersedia di https://kononkatanya.stei.fun/api/docs.</p>
+<p style="text-align:center"><i>Tabel 7. Container pada STB</i></p>
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;border:1px solid #666">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Container</th>
+<th>Fungsi</th>
+<th>Batas sumber daya</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gateway</code></td>
+<td>Nginx, pintu masuk tunggal dan pembatas laju</td>
+<td>64 MB, 0,25 CPU</td>
+</tr>
+<tr>
+<td><code>core-service</code></td>
+<td>Python 3.12: wilayah, pengolah, permintaan, pencocokan, rekap</td>
+<td>256 MB, 0,5 CPU</td>
+</tr>
+<tr>
+<td><code>cloudflared</code></td>
+<td>Menghubungkan STB ke Cloudflare, layanan systemd di host</td>
+<td>tanpa batas container</td>
+</tr>
+</tbody>
+</table>
+<h2 id="daftar-endpoint">4.1 Daftar endpoint</h2>
+<p style="text-align:justify;text-indent:0.4in">Seluruh alamat pada Tabel 8 diawali
+https://kononkatanya.stei.fun/api. Kolom Kunci menunjukkan apakah header
+<code>X-API-Key</code> diperlukan.</p>
+<p style="text-align:center"><i>Tabel 8. Daftar endpoint API FlowGanic</i></p>
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;border:1px solid #666">
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Metode</th>
+<th>Path</th>
+<th>Kunci</th>
+<th>Fungsi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/health</code></td>
+<td>tidak</td>
+<td>Memeriksa layanan hidup</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/wilayah</code></td>
+<td>ya</td>
+<td>Wilayah layanan, wilayah pilot ditandai</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/pengolah?wilayah_id=&amp;jenis=</code></td>
+<td>ya</td>
+<td>Pengolah, kapasitas harian, dan cakupan layanan</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/permintaan</code></td>
+<td>ya</td>
+<td>Mengajukan penjemputan dan menerima hasil pencocokan</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/permintaan/{id}</code></td>
+<td>ya</td>
+<td>Status terkini sebuah permintaan</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/permintaan/{id}</code></td>
+<td>ya</td>
+<td>Menolak penugasan atau mengonfirmasi volume</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/rekap?wilayah_id=&amp;jenis=&amp;dari=&amp;sampai=</code></td>
+<td>ya</td>
+<td>Total dan rincian agregat per jenis</td>
+</tr>
+</tbody>
+</table>
+<p style="text-align:justify;text-indent:0.4in">Status permintaan ada empat: <code>diajukan</code> berarti belum ada
+pengolah yang sanggup pada tanggal itu, <code>dijadwalkan</code> berarti
+sudah dicocokkan, <code>ditolak</code> berarti tidak ada pengolah yang
+dapat melayani, dan <code>selesai</code> berarti volume sudah
+dikonfirmasi. Kode status yang dipakai adalah 200 (berhasil), 400
+(masukan tidak valid atau permintaan sudah final), 401 (API key salah
+atau belum disertakan), 404 (data tidak ditemukan), dan 429 (melewati
+batas pemanggilan).</p>
+<h2 id="alur-inti">4.2 Alur inti</h2>
+<p style="text-align:justify;text-indent:0.4in">Gambar 6 memperlihatkan alur dari pengajuan sampai rekap, termasuk
+letak dua aturan bisnis Tugas 1 yang dikunci oleh uji otomatis.</p>
+<p style="text-align:center"><img
+src="https://raw.githubusercontent.com/tepchu/FlowGanic/main/docs/alur.png"  width="586" /></p>
+<p style="text-align:center"><i>Gambar 6. Alur pengajuan penjemputan dan pencocokan pengolah</i></p>
+<h2 id="contoh-permintaan-dan-jawaban">4.3 Contoh permintaan dan
+jawaban</h2>
+<p style="text-align:justify;text-indent:0.4in">Contoh berikut mengajukan penjemputan sampah organik seberat 20 kg di
+wilayah pilot.</p>
+<pre><code>POST /api/permintaan
+X-API-Key: &lt;kunci&gt;
+Content-Type: application/json
+
+{&quot;penghasil_ref&quot;:&quot;rt03-rumah-12&quot;,
+ &quot;wilayah_id&quot;:&quot;rw05-lebak-siliwangi&quot;,
+ &quot;jenis&quot;:&quot;ORGANIK&quot;,&quot;perkiraan_kg&quot;:20,
+ &quot;jadwal&quot;:&quot;2026-11-25&quot;}</code></pre>
+<p style="text-align:justify;text-indent:0.4in">Jawaban server berisi permintaan beserta pengolah hasil
+pencocokan:</p>
+<pre><code>{&quot;id&quot;:&quot;68eda6c18191&quot;,&quot;penghasil_ref&quot;:&quot;rt03-rumah-12&quot;,
+ &quot;wilayah_id&quot;:&quot;rw05-lebak-siliwangi&quot;,&quot;jenis&quot;:&quot;ORGANIK&quot;,
+ &quot;perkiraan_kg&quot;:20,&quot;jadwal&quot;:&quot;2026-11-25&quot;,
+ &quot;status&quot;:&quot;dijadwalkan&quot;,&quot;pengolah_id&quot;:&quot;komposter-coblong&quot;,
+ &quot;volume_kg&quot;:null,&quot;duplikat&quot;:false}</code></pre>
+<p style="text-align:justify;text-indent:0.4in">Saat sampah benar-benar diterima, pengolah mengunci volume
+sebenarnya, lalu rekap menjumlahkannya secara anonim:</p>
+<pre><code>PATCH /api/permintaan/68eda6c18191
+{&quot;aksi&quot;:&quot;selesai&quot;,&quot;volume_kg&quot;:23}
+
+GET /api/rekap?wilayah_id=rw05-lebak-siliwangi
+{&quot;total&quot;:{&quot;permintaan&quot;:4,&quot;selesai&quot;:3,
+          &quot;terkelola_kg&quot;:60,&quot;diajukan_kg&quot;:87},
+ &quot;per_jenis&quot;:{&quot;ORGANIK&quot;:{&quot;permintaan&quot;:2,&quot;selesai&quot;:2,&quot;terkelola_kg&quot;:48},
+              &quot;ANORGANIK&quot;:{&quot;permintaan&quot;:1,&quot;selesai&quot;:1,&quot;terkelola_kg&quot;:12},
+              &quot;RESIDU&quot;:{&quot;permintaan&quot;:1,&quot;selesai&quot;:0,&quot;terkelola_kg&quot;:0}},
+ &quot;sumber&quot;:&quot;agregat_anonim&quot;}</code></pre>
+<p style="text-align:justify;text-indent:0.4in">Permintaan tanpa header <code>X-API-Key</code> dijawab
+<code>401</code> dengan isi
+<code>{"galat": "API key tidak valid atau belum disertakan"}</code>.</p>
+<h2 id="pengujian">4.4 Pengujian</h2>
+<p style="text-align:justify;text-indent:0.4in">Pengujian dilakukan pada tiga tingkat, seperti pada Tabel 9.</p>
+<p style="text-align:center"><i>Tabel 9. Ringkasan pengujian</i></p>
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;border:1px solid #666">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Tingkat</th>
+<th>Cakupan</th>
+<th>Hasil</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Uji unit (<code>python3 -m unittest</code>)</td>
+<td>Model domain, pencocokan kapasitas, aturan anti-duplikat, pemilik
+tetap, anonimitas rekap, lapisan HTTP, API key, CORS</td>
+<td>17 uji lulus</td>
+</tr>
+<tr>
+<td>Uji HTTP (<code>cek-api.sh</code>)</td>
+<td>Alur lengkap dari pengajuan, penolakan, pencocokan ulang, sampai
+konfirmasi volume dan rekap</td>
+<td>14 dari 14 lulus</td>
+</tr>
+<tr>
+<td>Uji dari luar jaringan STB</td>
+<td><code>GET /api/health</code> menjawab 200 melalui HTTP/2 over TLS,
+endpoint berkunci menjawab 401, batas CPU dan memori terbaca
+<code>500000000</code>/<code>268435456</code> dan
+<code>250000000</code>/<code>67108864</code> di kernel STB</td>
+<td>Sesuai rancangan</td>
+</tr>
+</tbody>
+</table>
+<p style="text-align:justify;text-indent:0.4in">Belum diuji: beban bersamaan, perilaku setelah listrik STB padam, dan
+tampilan aplikasi pada perangkat fisik. Branding aplikasi serta build
+APK release juga belum dikerjakan. Integrasi dengan API kelompok lain
+berada di luar lingkup dokumen ini dan dikerjakan pada Tugas 3;
+kerangkanya sudah disiapkan pada objek <code>MITRA</code> di
+<code>ApiService.js</code> dengan base URL sengaja dibiarkan kosong.</p>
+
+</body></html>
