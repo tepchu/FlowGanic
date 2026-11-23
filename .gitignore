@@ -14,3 +14,4 @@ AGENTS.md
 *HANDOVER*.md
 .env.*
 !.env.example
+alat-lokal/
